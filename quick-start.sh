@@ -47,7 +47,8 @@ print_warning() {
     echo -e "${YELLOW}⚠️  $1${NC}"
 }
 
-# Function to print error() {
+# Function to print error
+print_error() {
     echo -e "${RED}❌ $1${NC}"
 }
 
