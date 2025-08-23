@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jenkins-config
+  namespace: jenkins
+data:
+  jenkins.yaml: |
+    jenkins:
+      systemMessage: "Jenkins configured automatically by EKS Microservices"
+      numExecutors: 2
+      scmCheckoutRetryCount: 3
+      mode: NORMAL
+      labelString: "eks-jenkins"
+      
+    tool:
+      git:
+        installations:
+          - name: Default
+            home: git
+            
+    security:
+      scriptApproval:
+        approvedSignatures:
+          - method groovy.lang.Binding getVariable java.lang.String
+          - method groovy.lang.Binding setVariable java.lang.String java.lang.Object
+          
+    unclassified:
+      location:
+        url: http://jenkins.eks-microservices.com/jenkins

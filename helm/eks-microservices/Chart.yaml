@@ -1,0 +1,17 @@
+apiVersion: v2
+name: eks-microservices
+description: A Helm chart for EKS Microservices WebApp
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+keywords:
+  - microservices
+  - kubernetes
+  - helm
+  - eks
+home: https://github.com/your-username/eks-microservices
+sources:
+  - https://github.com/your-username/eks-microservices
+maintainers:
+  - name: EKS Microservices Team
+    email: team@eks-microservices.com

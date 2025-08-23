@@ -1,0 +1,158 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: jenkins
+  labels:
+    name: jenkins
+    app: jenkins
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: jenkins
+  namespace: jenkins
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: jenkins-admin
+rules:
+  - apiGroups: [""]
+    resources: ["*"]
+    verbs: ["*"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: jenkins-admin
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: jenkins-admin
+subjects:
+  - kind: ServiceAccount
+    name: jenkins
+    namespace: jenkins
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: jenkins-pvc
+  namespace: jenkins
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: gp2
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jenkins
+  namespace: jenkins
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jenkins
+  template:
+    metadata:
+      labels:
+        app: jenkins
+    spec:
+      serviceAccountName: jenkins
+      containers:
+      - name: jenkins
+        image: jenkins/jenkins:lts-jdk17
+        ports:
+        - containerPort: 8080
+        - containerPort: 50000
+        env:
+        - name: JAVA_OPTS
+          value: "-Djenkins.install.runSetupWizard=false -Djenkins.CLI.disabled=false"
+        - name: JENKINS_OPTS
+          value: "--prefix=/jenkins"
+        - name: CASC_JENKINS_CONFIG
+          value: "/var/jenkins_home/jenkins.yaml"
+        volumeMounts:
+        - name: jenkins-home
+          mountPath: /var/jenkins_home
+        - name: jenkins-config
+          mountPath: /var/jenkins_home/jenkins.yaml
+          subPath: jenkins.yaml
+        - name: docker-sock
+          mountPath: /var/run/docker.sock
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /jenkins/login
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /jenkins/login
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+      volumes:
+      - name: jenkins-home
+        persistentVolumeClaim:
+          claimName: jenkins-pvc
+      - name: jenkins-config
+        configMap:
+          name: jenkins-config
+      - name: docker-sock
+        hostPath:
+          path: /var/run/docker.sock
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jenkins
+  namespace: jenkins
+spec:
+  selector:
+    app: jenkins
+  ports:
+  - port: 80
+    targetPort: 8080
+    protocol: TCP
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: jenkins-ingress
+  namespace: jenkins
+  annotations:
+    kubernetes.io/ingress.class: "alb"
+    alb.ingress.kubernetes.io/scheme: "internet-facing"
+    alb.ingress.kubernetes.io/target-type: "ip"
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+    alb.ingress.kubernetes.io/certificate-arn: "${SSL_CERTIFICATE_ARN}"
+    alb.ingress.kubernetes.io/ssl-redirect: "443"
+spec:
+  rules:
+  - host: jenkins.eks-microservices.com
+    http:
+      paths:
+      - path: /jenkins
+        pathType: Prefix
+        backend:
+          service:
+            name: jenkins
+            port:
+              number: 80
