@@ -85,7 +85,7 @@ eksctl create cluster \
     --managed \
     --with-oidc \
     --ssh-access \
-    --ssh-public-key ~/.ssh/id_rsa \
+    --ssh-public-key ~/.ssh/id_rsa.pub \
     --full-ecr-access \
     --alb-ingress-access
 
