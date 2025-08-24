@@ -122,35 +122,4 @@ spec:
     targetPort: 3001
     protocol: TCP
   type: ClusterIP
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: user-service-ingress
-  namespace: eks-microservices
-  annotations:
-    kubernetes.io/ingress.class: "alb"
-    alb.ingress.kubernetes.io/scheme: "internet-facing"
-    alb.ingress.kubernetes.io/target-type: "ip"
-    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
-    alb.ingress.kubernetes.io/certificate-arn: "${SSL_CERTIFICATE_ARN}"
-    alb.ingress.kubernetes.io/ssl-redirect: "443"
-spec:
-  rules:
-  - host: api.eks-microservices.com
-    http:
-      paths:
-      - path: /api/users
-        pathType: Prefix
-        backend:
-          service:
-            name: user-service
-            port:
-              number: 80
-      - path: /api/auth
-        pathType: Prefix
-        backend:
-          service:
-            name: user-service
-            port:
-              number: 80
+
