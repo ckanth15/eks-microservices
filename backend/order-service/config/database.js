@@ -40,42 +40,29 @@ const initTables = async () => {
   try {
     const client = await pool.connect();
     
-    // Create users table
+    // Create orders table
     await client.query(`
-      CREATE TABLE IF NOT EXISTS users (
+      CREATE TABLE IF NOT EXISTS orders (
         id SERIAL PRIMARY KEY,
-        username VARCHAR(50) UNIQUE NOT NULL,
-        email VARCHAR(100) UNIQUE NOT NULL,
-        password_hash VARCHAR(255) NOT NULL,
-        first_name VARCHAR(50),
-        last_name VARCHAR(50),
-        role VARCHAR(20) DEFAULT 'user',
-        is_active BOOLEAN DEFAULT true,
+        user_id INTEGER,
+        total_amount DECIMAL(10,2) NOT NULL,
+        status VARCHAR(20) DEFAULT 'pending',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
 
-    // Create user_sessions table for JWT management
+    // Create order_items table
     await client.query(`
-      CREATE TABLE IF NOT EXISTS user_sessions (
+      CREATE TABLE IF NOT EXISTS order_items (
         id SERIAL PRIMARY KEY,
-        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-        token_hash VARCHAR(255) NOT NULL,
-        expires_at TIMESTAMP NOT NULL,
+        order_id INTEGER REFERENCES orders(id),
+        product_id INTEGER,
+        quantity INTEGER NOT NULL,
+        unit_price DECIMAL(10,2) NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
-
-    // Insert default admin user if not exists
-    const bcrypt = require('bcryptjs');
-    const adminPassword = await bcrypt.hash('admin123', 10);
-    
-    await client.query(`
-      INSERT INTO users (username, email, password_hash, first_name, last_name, role)
-      VALUES ($1, $2, $3, $4, $5, $6)
-      ON CONFLICT (username) DO NOTHING
-    `, ['admin', 'admin@eks-microservices.com', adminPassword, 'Admin', 'User', 'admin']);
 
     console.log('✅ Database tables initialized successfully');
     client.release();

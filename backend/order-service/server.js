@@ -79,6 +79,16 @@ const startServer = async () => {
   try {
     // Connect to database
     await connectDB();
+    
+    // Start listening
+    app.listen(PORT, () => {
+      console.log(`🚀 Order service running on port ${PORT}`);
+    });
+  } catch (error) {
+    console.error('❌ Failed to start order service:', error);
+    process.exit(1);
+  }
+};
 
 startServer();
 

@@ -40,42 +40,30 @@ const initTables = async () => {
   try {
     const client = await pool.connect();
     
-    // Create users table
+    // Create products table
     await client.query(`
-      CREATE TABLE IF NOT EXISTS users (
+      CREATE TABLE IF NOT EXISTS products (
         id SERIAL PRIMARY KEY,
-        username VARCHAR(50) UNIQUE NOT NULL,
-        email VARCHAR(100) UNIQUE NOT NULL,
-        password_hash VARCHAR(255) NOT NULL,
-        first_name VARCHAR(50),
-        last_name VARCHAR(50),
-        role VARCHAR(20) DEFAULT 'user',
-        is_active BOOLEAN DEFAULT true,
+        name VARCHAR(100) NOT NULL,
+        description TEXT,
+        price DECIMAL(10,2) NOT NULL,
+        stock_quantity INTEGER DEFAULT 0,
+        category VARCHAR(50),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
 
-    // Create user_sessions table for JWT management
-    await client.query(`
-      CREATE TABLE IF NOT EXISTS user_sessions (
-        id SERIAL PRIMARY KEY,
-        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-        token_hash VARCHAR(255) NOT NULL,
-        expires_at TIMESTAMP NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
-
-    // Insert default admin user if not exists
-    const bcrypt = require('bcryptjs');
-    const adminPassword = await bcrypt.hash('admin123', 10);
-    
-    await client.query(`
-      INSERT INTO users (username, email, password_hash, first_name, last_name, role)
-      VALUES ($1, $2, $3, $4, $5, $6)
-      ON CONFLICT (username) DO NOTHING
-    `, ['admin', 'admin@eks-microservices.com', adminPassword, 'Admin', 'User', 'admin']);
+    // Insert sample products if table is empty
+    const { rows } = await client.query('SELECT COUNT(*) FROM products');
+    if (parseInt(rows[0].count) === 0) {
+      await client.query(`
+        INSERT INTO products (name, description, price, stock_quantity, category) VALUES 
+        ('Sample Product 1', 'This is a sample product', 29.99, 100, 'electronics'),
+        ('Sample Product 2', 'Another sample product', 49.99, 50, 'electronics')
+      `);
+      console.log('✅ Sample products inserted');
+    }
 
     console.log('✅ Database tables initialized successfully');
     client.release();

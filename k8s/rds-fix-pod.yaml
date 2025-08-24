@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: rds-test-pod
+  name: rds-fix-pod
   namespace: eks-microservices
 spec:
   containers:
