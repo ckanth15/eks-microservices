@@ -1,3 +1,6 @@
+# Enhanced ArgoCD Configuration for EKS Microservices
+# This includes additional applications and better monitoring
+
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -5,6 +8,9 @@ metadata:
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
+  labels:
+    app: eks-microservices
+    environment: production
 spec:
   project: default
   source:
@@ -33,6 +39,9 @@ spec:
       jsonPointers:
         - /spec/minReplicas
         - /spec/maxReplicas
+  health:
+    initialDelaySeconds: 30
+    periodSeconds: 60
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
@@ -41,6 +50,9 @@ metadata:
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
+  labels:
+    app: monitoring
+    environment: production
 spec:
   project: default
   source:
@@ -59,6 +71,9 @@ spec:
       - PrunePropagationPolicy=foreground
       - PruneLast=true
   revisionHistoryLimit: 5
+  health:
+    initialDelaySeconds: 30
+    periodSeconds: 60
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
@@ -67,6 +82,9 @@ metadata:
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
+  labels:
+    app: jenkins
+    environment: production
 spec:
   project: default
   source:
@@ -85,3 +103,70 @@ spec:
       - PrunePropagationPolicy=foreground
       - PruneLast=true
   revisionHistoryLimit: 5
+  health:
+    initialDelaySeconds: 30
+    periodSeconds: 60
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ingress-config
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  labels:
+    app: ingress
+    environment: production
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/ckanth15/eks-microservices.git
+    targetRevision: HEAD
+    path: k8s/ingress
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: eks-microservices
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
+  revisionHistoryLimit: 3
+  health:
+    initialDelaySeconds: 30
+    periodSeconds: 60
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: database
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  labels:
+    app: database
+    environment: production
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/ckanth15/eks-microservices.git
+    targetRevision: HEAD
+    path: k8s/database
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: eks-microservices
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
+  revisionHistoryLimit: 3
+  health:
+    initialDelaySeconds: 30
+    periodSeconds: 60

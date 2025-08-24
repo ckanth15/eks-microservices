@@ -1,0 +1,26 @@
+# Route 53 Configuration for EKS Microservices
+# This file contains the configuration for setting up domain names
+# You'll need to update the domain names with your actual domain
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: route53-config
+  namespace: eks-microservices
+data:
+  # Update these with your actual domain
+  main_domain: "yourdomain.com"
+  app_subdomain: "app.yourdomain.com"
+  api_subdomain: "api.yourdomain.com"
+  argocd_subdomain: "argocd.yourdomain.com"
+  jenkins_subdomain: "jenkins.yourdomain.com"
+  monitoring_subdomain: "monitoring.yourdomain.com"
+  
+  # Route 53 hosted zone ID (you'll get this from AWS Console)
+  hosted_zone_id: "YOUR_HOSTED_ZONE_ID"
+  
+  # Load balancer DNS name (this will be updated automatically)
+  load_balancer_dns: "k8s-eksmicroservices-bef7242b37-2114671741.us-east-1.elb.amazonaws.com"
+  
+  # SSL certificate ARN (will be created in next step)
+  ssl_certificate_arn: "TO_BE_CREATED"
