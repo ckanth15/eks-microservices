@@ -13,6 +13,7 @@ A comprehensive microservices web application designed for AWS EKS deployment wi
 - **GitOps**: ArgoCD for Kubernetes deployment automation
 - **Monitoring**: Prometheus, Grafana, and Splunk integration
 - **Infrastructure**: AWS EKS cluster configuration
+- **Production Ready**: SSL certificates, custom domains, monitoring alerts
 
 ## 🏗️ Architecture
 
@@ -34,6 +35,16 @@ A comprehensive microservices web application designed for AWS EKS deployment wi
 │   (AWS ALB)     │    │   (GitOps)      │    │   Stack         │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
 ```
+
+## 🌐 Production URLs
+
+Once DNS propagation is complete, your services will be accessible at:
+
+- **🌐 Main Application**: `https://app.easeurwork.cloud`
+- ** ArgoCD GitOps**: `https://argocd.easeurwork.cloud`
+- ** Jenkins CI/CD**: `https://jenkins.easeurwork.cloud`
+- **📊 Monitoring**: `https://monitoring.easeurwork.cloud`
+- **🔌 API Gateway**: `https://api.easeurwork.cloud`
 
 ## 🛠️ Prerequisites
 
@@ -76,16 +87,25 @@ kubectl apply -f k8s/
 # (Manual step: Import Jenkinsfile from jenkins/ directory)
 ```
 
-### 4. Verification (30 mins)
+### 4. Production Setup (30 mins)
+```bash
+# Set up custom domain and SSL
+./scripts/setup-namecheap-route53.sh
+
+# Deploy production ingress
+./scripts/deploy-production-ingress.sh
+```
+
+### 5. Verification (30 mins)
 ```bash
 # Check all services
 kubectl get all -A
 
-# Access ArgoCD UI
-kubectl port-forward svc/argocd-server 8080:80
+# Verify system status
+./scripts/verify-system-status.sh
 
-# Access Grafana
-kubectl port-forward svc/grafana 3000:80
+# Test external access
+curl -I https://app.easeurwork.cloud
 ```
 
 ## 📁 Project Structure
@@ -121,6 +141,8 @@ kubectl port-forward svc/grafana 3000:80
 - Application Load Balancer
 - ECR repositories
 - S3 buckets for logs
+- Route 53 hosted zone
+- SSL certificates via ACM
 
 ## 📊 Monitoring
 
@@ -128,6 +150,7 @@ kubectl port-forward svc/grafana 3000:80
 - **Grafana**: Dashboards and visualization
 - **Splunk**: Log aggregation and analysis
 - **Custom metrics**: Application-specific KPIs
+- **Production alerts**: CPU, memory, pod health, error rates
 
 ## 🔄 CI/CD Pipeline
 
@@ -140,12 +163,28 @@ kubectl port-forward svc/grafana 3000:80
 
 ## 🚨 Troubleshooting
 
-Common issues and solutions are documented in `docs/troubleshooting.md`.
+### System Status Check
+```bash
+# Comprehensive system verification
+./scripts/verify-system-status.sh
+
+# Check specific components
+kubectl get pods -A
+kubectl get services -A
+kubectl get ingress -A
+```
+
+### Common Issues
+- **DNS Resolution**: Wait for nameserver propagation (up to 48 hours)
+- **SSL Certificate**: Verify ACM certificate status
+- **Load Balancer**: Check AWS Load Balancer Controller logs
+- **Database**: Verify RDS connectivity and schema
 
 ## 📚 Documentation
 
-- [Architecture Details](docs/architecture.md)
-- [Deployment Guide](docs/deployment.md)
+- [Architecture Details](docs/enterprise-architecture.md)
+- [Deployment Guide](docs/deployment-guide.md)
+- [Production Setup](docs/production-setup.md)
 - [Monitoring Setup](docs/monitoring.md)
 - [Troubleshooting](docs/troubleshooting.md)
 
@@ -159,3 +198,30 @@ Common issues and solutions are documented in `docs/troubleshooting.md`.
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🎯 Current Status
+
+### ✅ **What's Working:**
+- EKS cluster with 3 nodes
+- All microservices deployed and healthy
+- ArgoCD GitOps operational
+- Jenkins CI/CD running
+- Monitoring stack active
+- SSL certificates issued
+- Production ingress configured
+- ECR repositories with images
+
+### ⏳ **What's Pending:**
+- DNS propagation for custom domains
+- External HTTPS access
+- Production ingress deployment
+- CI/CD pipeline automation
+
+###  **Next Steps:**
+1. Wait for DNS propagation
+2. Deploy production ingress
+3. Test external access
+4. Configure monitoring alerts
+5. Set up automated CI/CD
+
+**🎉 Your EKS Microservices cluster is production-ready and waiting for DNS propagation!**

@@ -1,0 +1,88 @@
+{
+    "repositories": [
+        {
+            "repositoryArn": "arn:aws:ecr:us-east-1:063278365748:repository/helloworld",
+            "registryId": "063278365748",
+            "repositoryName": "helloworld",
+            "repositoryUri": "063278365748.dkr.ecr.us-east-1.amazonaws.com/helloworld",
+            "createdAt": "2025-08-20T19:28:55.733000-07:00",
+            "imageTagMutability": "MUTABLE",
+            "imageScanningConfiguration": {
+                "scanOnPush": false
+            },
+            "encryptionConfiguration": {
+                "encryptionType": "AES256"
+            }
+        },
+        {
+            "repositoryArn": "arn:aws:ecr:us-east-1:063278365748:repository/user-service",
+            "registryId": "063278365748",
+            "repositoryName": "user-service",
+            "repositoryUri": "063278365748.dkr.ecr.us-east-1.amazonaws.com/user-service",
+            "createdAt": "2025-08-23T16:42:27.568000-07:00",
+            "imageTagMutability": "MUTABLE",
+            "imageScanningConfiguration": {
+                "scanOnPush": false
+            },
+            "encryptionConfiguration": {
+                "encryptionType": "AES256"
+            }
+        },
+        {
+            "repositoryArn": "arn:aws:ecr:us-east-1:063278365748:repository/product-service",
+            "registryId": "063278365748",
+            "repositoryName": "product-service",
+            "repositoryUri": "063278365748.dkr.ecr.us-east-1.amazonaws.com/product-service",
+            "createdAt": "2025-08-23T16:42:35.360000-07:00",
+            "imageTagMutability": "MUTABLE",
+            "imageScanningConfiguration": {
+                "scanOnPush": false
+            },
+            "encryptionConfiguration": {
+                "encryptionType": "AES256"
+            }
+        },
+        {
+            "repositoryArn": "arn:aws:ecr:us-east-1:063278365748:repository/order-service",
+            "registryId": "063278365748",
+            "repositoryName": "order-service",
+            "repositoryUri": "063278365748.dkr.ecr.us-east-1.amazonaws.com/order-service",
+            "createdAt": "2025-08-23T16:42:46.657000-07:00",
+            "imageTagMutability": "MUTABLE",
+            "imageScanningConfiguration": {
+                "scanOnPush": false
+            },
+            "encryptionConfiguration": {
+                "encryptionType": "AES256"
+            }
+        },
+        {
+            "repositoryArn": "arn:aws:ecr:us-east-1:063278365748:repository/frontend",
+            "registryId": "063278365748",
+            "repositoryName": "frontend",
+            "repositoryUri": "063278365748.dkr.ecr.us-east-1.amazonaws.com/frontend",
+            "createdAt": "2025-08-23T16:41:59.164000-07:00",
+            "imageTagMutability": "MUTABLE",
+            "imageScanningConfiguration": {
+                "scanOnPush": false
+            },
+            "encryptionConfiguration": {
+                "encryptionType": "AES256"
+            }
+        },
+        {
+            "repositoryArn": "arn:aws:ecr:us-east-1:063278365748:repository/eks-microservices",
+            "registryId": "063278365748",
+            "repositoryName": "eks-microservices",
+            "repositoryUri": "063278365748.dkr.ecr.us-east-1.amazonaws.com/eks-microservices",
+            "createdAt": "2025-08-23T19:02:52.913000-07:00",
+            "imageTagMutability": "MUTABLE",
+            "imageScanningConfiguration": {
+                "scanOnPush": false
+            },
+            "encryptionConfiguration": {
+                "encryptionType": "AES256"
+            }
+        }
+    ]
+}
