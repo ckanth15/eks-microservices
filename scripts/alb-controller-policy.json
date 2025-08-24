@@ -27,6 +27,7 @@
                 "ec2:DescribeTags",
                 "ec2:GetCoipPoolUsage",
                 "ec2:DescribeCoipPools",
+                "ec2:DescribeAvailabilityZones",
                 "elasticloadbalancing:DescribeLoadBalancers",
                 "elasticloadbalancing:DescribeLoadBalancerAttributes",
                 "elasticloadbalancing:DescribeListeners",
@@ -69,15 +70,7 @@
                 "ec2:CreateSecurityGroup",
                 "ec2:CreateTags"
             ],
-            "Resource": "*",
-            "Condition": {
-                "StringEquals": {
-                    "ec2:CreateAction": "CreateSecurityGroup"
-                },
-                "Null": {
-                    "aws:RequestTag/elbv2.k8s.aws/resource": "false"
-                }
-            }
+            "Resource": "*"
         },
         {
             "Effect": "Allow",
