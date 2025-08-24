@@ -1,0 +1,136 @@
+# Grafana Dashboards for EKS Microservices Production Monitoring
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboards
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+data:
+  # EKS Cluster Overview Dashboard
+  eks-cluster-overview.json: |
+    {
+      "dashboard": {
+        "id": null,
+        "title": "EKS Cluster Overview",
+        "tags": ["eks", "kubernetes", "cluster"],
+        "timezone": "browser",
+        "panels": [
+          {
+            "id": 1,
+            "title": "Cluster CPU Usage",
+            "type": "stat",
+            "targets": [
+              {
+                "expr": "sum(rate(container_cpu_usage_seconds_total{container!=\"\"}[5m])) by (pod)",
+                "legendFormat": "{{pod}}"
+              }
+            ]
+          },
+          {
+            "id": 2,
+            "title": "Cluster Memory Usage",
+            "type": "stat",
+            "targets": [
+              {
+                "expr": "sum(container_memory_usage_bytes{container!=\"\"}) by (pod)",
+                "legendFormat": "{{pod}}"
+              }
+            ]
+          },
+          {
+            "id": 3,
+            "title": "Pod Status",
+            "type": "stat",
+            "targets": [
+              {
+                "expr": "count(kube_pod_status_phase)",
+                "legendFormat": "Total Pods"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  
+  # Microservices Performance Dashboard
+  microservices-performance.json: |
+    {
+      "dashboard": {
+        "id": null,
+        "title": "Microservices Performance",
+        "tags": ["microservices", "performance", "api"],
+        "timezone": "browser",
+        "panels": [
+          {
+            "id": 1,
+            "title": "API Response Time",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le, service))",
+                "legendFormat": "{{service}} - 95th percentile"
+              }
+            ]
+          },
+          {
+            "id": 2,
+            "title": "Request Rate",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "sum(rate(http_requests_total[5m])) by (service)",
+                "legendFormat": "{{service}}"
+              }
+            ]
+          },
+          {
+            "id": 3,
+            "title": "Error Rate",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "sum(rate(http_requests_total{status=~\"5..\"}[5m])) by (service)",
+                "legendFormat": "{{service}} - 5xx errors"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  
+  # Database Performance Dashboard
+  database-performance.json: |
+    {
+      "dashboard": {
+        "id": null,
+        "title": "Database Performance",
+        "tags": ["database", "postgresql", "performance"],
+        "timezone": "browser",
+        "panels": [
+          {
+            "id": 1,
+            "title": "Active Connections",
+            "type": "stat",
+            "targets": [
+              {
+                "expr": "pg_stat_database_numbackends",
+                "legendFormat": "Active Connections"
+              }
+            ]
+          },
+          {
+            "id": 2,
+            "title": "Query Performance",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "rate(pg_stat_database_xact_commit[5m])",
+                "legendFormat": "Transactions/sec"
+              }
+            ]
+          }
+        ]
+      }
+    }

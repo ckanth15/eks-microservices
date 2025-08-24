@@ -1,6 +1,5 @@
 # Route 53 Configuration for EKS Microservices
 # This file contains the configuration for setting up domain names
-# You'll need to update the domain names with your actual domain
 
 apiVersion: v1
 kind: ConfigMap
@@ -8,19 +7,22 @@ metadata:
   name: route53-config
   namespace: eks-microservices
 data:
-  # Update these with your actual domain
-  main_domain: "yourdomain.com"
-  app_subdomain: "app.yourdomain.com"
-  api_subdomain: "api.yourdomain.com"
-  argocd_subdomain: "argocd.yourdomain.com"
-  jenkins_subdomain: "jenkins.yourdomain.com"
-  monitoring_subdomain: "monitoring.yourdomain.com"
+  # Domain configuration
+  main_domain: "easeurwork.cloud"
+  app_subdomain: "app.easeurwork.cloud"
+  api_subdomain: "api.easeurwork.cloud"
+  argocd_subdomain: "argocd.easeurwork.cloud"
+  jenkins_subdomain: "jenkins.easeurwork.cloud"
+  monitoring_subdomain: "monitoring.easeurwork.cloud"
   
-  # Route 53 hosted zone ID (you'll get this from AWS Console)
-  hosted_zone_id: "YOUR_HOSTED_ZONE_ID"
+  # Route 53 hosted zone ID
+  hosted_zone_id: "Z090189813515X2U5CS1C"
   
-  # Load balancer DNS name (this will be updated automatically)
+  # Load balancer DNS name
   load_balancer_dns: "k8s-eksmicroservices-bef7242b37-2114671741.us-east-1.elb.amazonaws.com"
   
-  # SSL certificate ARN (will be created in next step)
-  ssl_certificate_arn: "TO_BE_CREATED"
+  # SSL certificate ARN
+  ssl_certificate_arn: "arn:aws:acm:us-east-1:063278365748:certificate/39cec75e-fe21-4efe-ad10-3c4753824b87"
+  
+  # Nameservers (for reference)
+  nameservers: "ns-1646.awsdns-13.co.uk ns-645.awsdns-16.net ns-1203.awsdns-22.org ns-353.awsdns-44.com"

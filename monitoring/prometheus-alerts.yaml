@@ -1,0 +1,83 @@
+# Prometheus Alerting Rules for EKS Microservices Production
+
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: eks-microservices-alerts
+  namespace: monitoring
+  labels:
+    prometheus: kube-prometheus
+    role: alert-rules
+spec:
+  groups:
+  - name: eks-microservices
+    rules:
+    # High CPU Usage Alert
+    - alert: HighCPUUsage
+      expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High CPU usage on {{ $labels.instance }}"
+        description: "CPU usage is above 80% for more than 5 minutes on {{ $labels.instance }}"
+    
+    # High Memory Usage Alert
+    - alert: HighMemoryUsage
+      expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100 > 85
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High memory usage on {{ $labels.instance }}"
+        description: "Memory usage is above 85% for more than 5 minutes on {{ $labels.instance }}"
+    
+    # Pod CrashLoopBackOff Alert
+    - alert: PodCrashLoopBackOff
+      expr: kube_pod_status_phase{phase="Running"} > 0 and kube_pod_container_status_restarts_total > 5
+      for: 2m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Pod {{ $labels.pod }} is in CrashLoopBackOff"
+        description: "Pod {{ $labels.pod }} in namespace {{ $labels.namespace }} has restarted more than 5 times"
+    
+    # Service Down Alert
+    - alert: ServiceDown
+      expr: up == 0
+      for: 1m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Service {{ $labels.job }} is down"
+        description: "Service {{ $labels.job }} has been down for more than 1 minute"
+    
+    # High Error Rate Alert
+    - alert: HighErrorRate
+      expr: sum(rate(http_requests_total{status=~"5.."}[5m])) by (service) / sum(rate(http_requests_total[5m])) by (service) * 100 > 5
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High error rate for {{ $labels.service }}"
+        description: "Error rate is above 5% for {{ $labels.service }}"
+    
+    # Database Connection Alert
+    - alert: DatabaseConnectionIssues
+      expr: pg_up == 0
+      for: 1m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Database connection failed"
+        description: "Cannot connect to PostgreSQL database"
+    
+    # Load Balancer Health Check Alert
+    - alert: LoadBalancerUnhealthy
+      expr: kube_pod_status_ready{condition="true"} == 0
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Load balancer health check failing"
+        description: "Some pods are not ready for load balancer health checks"

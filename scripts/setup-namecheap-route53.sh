@@ -105,7 +105,8 @@ echo "   7. Wait for DNS propagation (can take up to 48 hours)"
 # Create SSL certificate
 echo -e "${BLUE}🔒 Creating SSL certificate for domains...${NC}"
 CERT_ARN=$(aws acm request-certificate \
-    --domain-names "$MAIN_DOMAIN" "$APP_SUBDOMAIN" "$API_SUBDOMAIN" "$ARGOCD_SUBDOMAIN" "$JENKINS_SUBDOMAIN" "$MONITORING_SUBDOMAIN" \
+    --domain-name "$MAIN_DOMAIN" \
+    --subject-alternative-names "$APP_SUBDOMAIN" "$API_SUBDOMAIN" "$ARGOCD_SUBDOMAIN" "$JENKINS_SUBDOMAIN" "$MONITORING_SUBDOMAIN" \
     --validation-method DNS \
     --region "$REGION" \
     --query 'CertificateArn' \
