@@ -1,0 +1,33 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: kaniko-build-job
+  namespace: eks-microservices
+spec:
+  template:
+    spec:
+      serviceAccountName: kaniko-sa
+      containers:
+      - name: kaniko
+        image: gcr.io/kaniko-project/executor:latest
+        args:
+        - "--dockerfile=docker/Dockerfile.user-service"
+        - "--context=git://github.com/yourusername/eks-microservices.git"
+        - "--destination=063278365748.dkr.ecr.us-east-1.amazonaws.com/user-service:latest"
+        - "--insecure"
+        - "--skip-tls-verify"
+        env:
+        - name: AWS_DEFAULT_REGION
+          value: "us-east-1"
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: aws-credentials
+              key: access-key-id
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: aws-credentials
+              key: secret-access-key
+      restartPolicy: Never
+  backoffLimit: 1

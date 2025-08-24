@@ -1,0 +1,79 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: docker-build-pod
+  namespace: eks-microservices
+spec:
+  serviceAccountName: build-sa
+  containers:
+  - name: docker-build
+    image: docker:20.10-dind
+    command: ["sh", "-c"]
+    args:
+    - |
+      # Start Docker daemon
+      dockerd &
+      sleep 10
+      
+      # Install AWS CLI
+      apk add --no-cache aws-cli
+      
+      # Login to ECR
+      aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 063278365748.dkr.ecr.us-east-1.amazonaws.com
+      
+      # Build and push user-service
+      echo "Building user-service..."
+      docker build -f /workspace/docker/Dockerfile.user-service -t user-service:latest /workspace
+      docker tag user-service:latest 063278365748.dkr.ecr.us-east-1.amazonaws.com/user-service:latest
+      docker push 063278365748.dkr.ecr.us-east-1.amazonaws.com/user-service:latest
+      
+      # Build and push product-service
+      echo "Building product-service..."
+      docker build -f /workspace/docker/Dockerfile.product-service -t product-service:latest /workspace
+      docker tag product-service:latest 063278365748.dkr.ecr.us-east-1.amazonaws.com/product-service:latest
+      docker push 063278365748.dkr.ecr.us-east-1.amazonaws.com/product-service:latest
+      
+      # Build and push order-service
+      echo "Building order-service..."
+      docker build -f /workspace/docker/Dockerfile.order-service -t order-service:latest /workspace
+      docker tag order-service:latest 063278365748.dkr.ecr.us-east-1.amazonaws.com/order-service:latest
+      docker push 063278365748.dkr.ecr.us-east-1.amazonaws.com/order-service:latest
+      
+      # Build and push frontend
+      echo "Building frontend..."
+      docker build -f /workspace/docker/Dockerfile.frontend -t frontend:latest /workspace
+      docker tag frontend:latest 063278365748.dkr.ecr.us-east-1.amazonaws.com/frontend:latest
+      docker push 063278365748.dkr.ecr.us-east-1.amazonaws.com/frontend:latest
+      
+      echo "All images built and pushed successfully!"
+      
+    securityContext:
+      privileged: true
+    volumeMounts:
+    - name: workspace
+      mountPath: /workspace
+    - name: docker-sock
+      mountPath: /var/run/docker.sock
+    env:
+    - name: AWS_DEFAULT_REGION
+      value: "us-east-1"
+    - name: AWS_ACCESS_KEY_ID
+      valueFrom:
+        secretKeyRef:
+          name: aws-credentials
+          key: access-key-id
+    - name: AWS_SECRET_ACCESS_KEY
+      valueFrom:
+        secretKeyRef:
+          name: aws-credentials
+          key: secret-access-key
+  volumes:
+  - name: workspace
+    hostPath:
+      path: /Users/fnuchandrakanth/ckrepo/eks-microservices
+      type: Directory
+  - name: docker-sock
+    hostPath:
+      path: /var/run/docker.sock
+      type: Socket
+  restartPolicy: Never

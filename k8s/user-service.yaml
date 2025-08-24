@@ -6,6 +6,7 @@ metadata:
 type: Opaque
 data:
   jwt-secret: eW91ci1zZWNyZXQta2V5LWhlcmU= # your-secret-key-here in base64
+  db-password: cGFzc3dvcmQxMjM= # password123 in base64
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -14,7 +15,7 @@ metadata:
   namespace: eks-microservices
 data:
   NODE_ENV: "production"
-  DB_HOST: "postgres"
+  DB_HOST: "eks-microservices-postgres.csbkuwqio8uo.us-east-1.rds.amazonaws.com"
   DB_PORT: "5432"
   DB_NAME: "eks_microservices"
   DB_USER: "postgres"
@@ -38,7 +39,7 @@ spec:
     spec:
       containers:
       - name: user-service
-        image: ${ECR_REGISTRY}/user-service:latest
+        image: 063278365748.dkr.ecr.us-east-1.amazonaws.com/user-service:latest
         ports:
         - containerPort: 3001
         env:
@@ -70,8 +71,8 @@ spec:
         - name: DB_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: postgres-secret
-              key: password
+              name: user-service-secret
+              key: db-password
         - name: JWT_SECRET
           valueFrom:
             secretKeyRef:

@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: rds-test-pod
+  namespace: eks-microservices
+spec:
+  containers:
+  - name: postgres-client
+    image: postgres:15
+    command: ['sleep', '3600']
+    env:
+    - name: PGHOST
+      value: "eks-microservices-postgres.csbkuwqio8uo.us-east-1.rds.amazonaws.com"
+    - name: PGPORT
+      value: "5432"
+    - name: PGDATABASE
+      value: "postgres"
+    - name: PGUSER
+      value: "postgres"
+    - name: PGPASSWORD
+      value: "password123"
